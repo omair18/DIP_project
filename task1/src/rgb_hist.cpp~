@@ -1,0 +1,55 @@
+#include "opencv2/highgui/highgui.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+#include <vector>
+#include <stdio.h>
+
+using namespace std;
+using namespace cv;
+
+
+int main() {
+
+	Mat img = imread("../data/frames/shot1_008.jpg");
+
+	int imgCount = 1;
+	int dims = 3;
+	const int sizes[] = {256,256,256};
+	const int channels[] = {0,1,2};
+	float rRange[] = {0,256};
+	float gRange[] = {0,256};
+	float bRange[] = {0,256};
+	const float *ranges[] = {rRange,gRange,bRange};
+	Mat mask = Mat();
+	Mat hist;
+	//calcHist(&img, imgCount, channels, mask, hist, dims, sizes, ranges);
+	std::vector<cv::Mat> rgbChannels(3);
+	split(img, rgbChannels);	
+	/*cout<<"hist = "<<hist.rows<<" "<<hist.cols<<endl;	
+	cout<<"img = "<<img.rows<<" "<<img.cols<<endl;	 */
+	return 0;
+
+}
+SplitImage(cv::Mat inputImage)
+{
+    //copy original in BGR order
+    std::vector<cv::Mat> splittedImage(3,cv::Mat(inputImage.size(),CV_64FC1));
+    std::vector<cv::Mat>::iterator it;
+    it = splittedImage.begin();
+
+    for(int channelNo = 0; channelNo < inputImage.channels(); channelNo++)
+    {
+        cv::Mat tempImage(inputImage.size(),CV_64FC1);
+        for (int row = 0; row < inputImage.size().height; row++)
+        {
+            for (int col = 0; col < inputImage.size().width; col++)
+            {
+    tempImage.at<double>(row, col) = inputImage.at<cv::Vec3d>(row, col)[channelNo];
+            }
+        }
+
+  it = splittedImage.insert ( it , tempImage );     
+  it++;
+    }
+    return splittedImage;
+}

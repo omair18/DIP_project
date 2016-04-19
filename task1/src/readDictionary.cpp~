@@ -1,0 +1,113 @@
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+//#include <opencv/cv.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <dirent.h>
+
+#include "hist.h"
+
+struct dirent **frames;
+char frames_directory[100] = "../data/frames/";
+char dataBase[100] = "../data/histograms.xml";
+char video_directory[100] = "../data/videos/";
+char vidName[100];
+char frameName[100];
+using namespace std;
+using namespace cv;
+#define TOTALFRAMES 15
+
+int random_number(int min_num, int max_num);
+int main(int argc, char **argv) {
+
+	VideoCapture capture(argv[1]); //get video from commandline 
+	if ( !capture.isOpened()) {
+		printf("Failed to open video \n");
+		return 0;
+	}
+	double frames_per_sec = capture.get(CV_CAP_PROP_FPS);
+	int frame_diff = frames_per_sec*15; //get frames after 15secs 
+	int next_frame = 0;
+	double total_frames = capture.get(CV_CAP_PROP_FRAME_COUNT);
+	printf("total frames = %f\n", total_frames);
+	printf("frames per sec = %f\n", frames_per_sec);
+for (int i=0; i< TOTALFRAMES; i++)
+		{
+			if(i != 0) {
+				next_frame = next_frame + frame_diff;
+				printf("next_frame = %d\n",next_frame);
+				if(next_frame > total_frames) {
+					frame = Mat::zeros(frame.rows, frame.cols,CV_8UC3); //empty frame
+				}
+				else  {
+					capture.set(CV_CAP_PROP_POS_FRAMES, next_frame);
+					capture >> frame;
+				}
+			}	
+			if(i == 0)
+				capture >> frame;
+
+			Mat hist_img = calculateHistogram(frame);	 // returns histogram
+			if(i == 0) //first image
+			{
+				hconcat(hist_img,hists);
+			}
+			else {
+				hconcat(hists,hist_img,hists);
+				//cout<<hists.rows<<'\t'<<hists.cols<<endl;
+			}
+			sprintf(filename, "../data/frames/vid%d_%.3d.jpg",j, n++);
+			printf("filename = %s\n",filename);
+			imwrite(filename, frame);	 //save frame on disk
+			imshow(window_name, frame);
+			cv::waitKey(1); 
+	       	}
+	/*int n = scandir(frames_directory, &frames, 0, alphasort); // open directory of images
+	
+	for(int i=2; i<n; i++) {
+		sprintf(frameName, "%s%s",frames_directory,frames[i]->d_name);
+	}
+	int rnd = random_number(2,n);
+	sprintf(frameName, "%s%s",frames_directory,frames[rnd]->d_name);
+	printf("Filename = %s\n", frameName);
+	Mat test_frame = imread(frameName); //randomly get test_frame everytime 
+
+	imshow("test frame", test_frame);
+	waitKey(0);
+	Mat hist_test = calculateHistogram(test_frame); //calculate histogram of image
+	
+	printf("%d \n", hist_test.cols); */
+	/*FileStorage fs(dataBase, FileStorage::READ); //read histograms
+	sprintf(vidName,"%s%d","vid",1);	
+	Mat matrix; 
+	fs[vidName] >> matrix;
+	cout<<matrix.cols<<endl;
+
+	Mat matrix2;
+	
+	sprintf(vidName,"%s%d","vid",2);	
+	fs[vidName] >> matrix2;
+	cout<<matrix2.cols<<endl; */
+
+	return 0;
+}
+
+int random_number(int min_num, int max_num)
+        {
+            int result=0,low_num=0,hi_num=0;
+            if(min_num<max_num)
+            {
+                low_num=min_num;
+                hi_num=max_num+1; // this is done to include max_num in output.
+            }else{
+                low_num=max_num+1;// this is done to include max_num in output.
+                hi_num=min_num;
+            }
+            srand(time(NULL));
+            result = (rand()%(hi_num-low_num))+low_num;
+            return result;
+        }
